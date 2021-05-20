@@ -31,6 +31,9 @@ architecture main of vga_driver is
 	signal paddle_x : integer := HSP + HFP + HBP;
 	signal paddle_y : integer := 300;
 	
+	signal paddle_x_2: integer := HSP + HFP + HBP + HAV - (paddle_width / 2);
+	signal paddle_y_2: integer := 300;
+	
 	signal paddleClkCounter : integer range 0 to 1000000 := 0;
 	signal paddleClk : STD_LOGIC := '0';
 	
@@ -95,6 +98,11 @@ begin
 		) then
 			rgb <= "111";
 		elsif (
+					(vpos > paddle_y_2 - (paddle_height / 2) and vpos < paddle_y_2 + (paddle_height / 2))  and
+					(hpos > paddle_x_2 - (paddle_width / 2) and hpos < paddle_x_2 + (paddle_width / 2))
+		) then
+			rgb <= "111";
+		elsif (
 					(vpos > ball_y - (ball_size / 2) and vpos < ball_y + (ball_size / 2))  and
 					(hpos > ball_x - (ball_size / 2) and hpos < ball_x + (ball_size / 2))
 		) then
@@ -124,6 +132,15 @@ begin
 			paddle_y <= paddle_y + 1;
 		elsif (paddle_y - (paddle_height / 2) > VSP + VBP + VFP and btn = "10") then
 			paddle_y <= paddle_y - 1;
+		end if;
+	end if;
+end process;
+
+ai_paddle: process(paddleClk)
+begin
+	if (rising_edge(paddleClk)) then
+		if (ball_y + (paddle_height / 2) < VAV + VSP + VBP + VFP) and (ball_y - (paddle_height / 2) > VSP + VBP + VFP) then
+			paddle_y_2 <= ball_y;
 		end if;
 	end if;
 end process;
@@ -176,8 +193,14 @@ begin
 				) then
 				ball_dir_h <= right;
 			end if;
-		elsif (ball_x + ball_size > HSP + HFP + HBP + HAV) then
+		elsif (ball_x + ball_size > HSP + HFP + HBP + HAV - paddle_width) then
+			if (
+				(ball_x > paddle_x_2 - (paddle_width / 2)) and
+				(ball_y > paddle_y_2 - (paddle_height / 2)) and 
+				(ball_y < paddle_y_2 + (paddle_height / 2))
+				) then
 			ball_dir_h <= left;
+			end if;
 		end if;
 		
 		if (ball_y - (ball_size / 2) < VSP + VBP + VFP) then

@@ -8,6 +8,7 @@ port(
 		hsync, vsync: out std_logic;
 		rgb: out std_logic_vector(2 downto 0);
 		btn: in std_logic_vector(1 downto 0);
+		btn_2: in std_logic_vector(1 downto 0);
 		rst: in std_logic
 );
 end vga_driver;
@@ -48,6 +49,9 @@ architecture main of vga_driver is
 	
 	signal ballClkCounter : integer range 0 to 1000000 := 0;
 	signal ballClk : STD_LOGIC := '0';
+	
+	signal score_counter: integer := 0;
+	signal score_counter_2: integer := 0;
 begin
  
 process(clk)
@@ -136,14 +140,25 @@ begin
 	end if;
 end process;
 
-ai_paddle: process(paddleClk)
+move_paddle_2: process(paddleClk)
 begin
 	if (rising_edge(paddleClk)) then
-		if (ball_y + (paddle_height / 2) < VAV + VSP + VBP + VFP) and (ball_y - (paddle_height / 2) > VSP + VBP + VFP) then
-			paddle_y_2 <= ball_y;
+		if (paddle_y_2 + (paddle_height / 2) < VAV + VSP + VBP + VFP and btn_2 = "01") then
+			paddle_y_2 <= paddle_y_2  + 1;
+		elsif (paddle_y_2 - (paddle_height / 2) > VSP + VBP + VFP and btn_2 = "10") then
+			paddle_y_2  <= paddle_y_2  - 1;
 		end if;
 	end if;
 end process;
+
+--ai_paddle: process(paddleClk)
+--begin
+--	if (rising_edge(paddleClk)) then
+--		if (ball_y + (paddle_height / 2) < VAV + VSP + VBP + VFP) and (ball_y - (paddle_height / 2) > VSP + VBP + VFP) then
+--			paddle_y_2 <= ball_y;
+--		end if;
+--	end if;
+--end process;
 
 ballClkScaler : process(clk)
 begin
@@ -199,7 +214,7 @@ begin
 				(ball_y > paddle_y_2 - (paddle_height / 2)) and 
 				(ball_y < paddle_y_2 + (paddle_height / 2))
 				) then
-			ball_dir_h <= left;
+				ball_dir_h <= left;
 			end if;
 		end if;
 		

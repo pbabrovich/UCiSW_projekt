@@ -9,11 +9,20 @@ port(
 		rgb: out std_logic_vector(2 downto 0);
 		btn: in std_logic_vector(1 downto 0);
 		btn_2: in std_logic_vector(1 downto 0);
-		rst: in std_logic
+		rst: in std_logic;
+		led: out std_logic_vector(3 downto 0)
 );
 end vga_driver;
  
 architecture main of vga_driver is
+	component led_controller is port (
+		score : in  integer range 0 to 3;
+      clk : in  STD_LOGIC;
+		rst: in std_logic;
+      led : out  STD_LOGIC_VECTOR (3 downto 0)
+	);
+	end component led_controller;
+
 	constant HAV : integer := 800;
 	constant HSP : integer := 56;
 	constant HFP : integer := 120;
@@ -50,10 +59,12 @@ architecture main of vga_driver is
 	signal ballClkCounter : integer range 0 to 1000000 := 0;
 	signal ballClk : STD_LOGIC := '0';
 	
-	signal score_counter: integer := 0;
-	signal score_counter_2: integer := 0;
+	signal score_counter: integer range 0 to 3 := 0;
+	signal score_update: boolean := false;
 begin
- 
+
+	left_player_score: led_controller port map (score_counter, ballClk, rst, led);
+
 process(clk)
 begin
 	if (rising_edge(clk)) then
@@ -140,25 +151,25 @@ begin
 	end if;
 end process;
 
-move_paddle_2: process(paddleClk)
-begin
-	if (rising_edge(paddleClk)) then
-		if (paddle_y_2 + (paddle_height / 2) < VAV + VSP + VBP + VFP and btn_2 = "01") then
-			paddle_y_2 <= paddle_y_2  + 1;
-		elsif (paddle_y_2 - (paddle_height / 2) > VSP + VBP + VFP and btn_2 = "10") then
-			paddle_y_2  <= paddle_y_2  - 1;
-		end if;
-	end if;
-end process;
-
---ai_paddle: process(paddleClk)
+--move_paddle_2: process(paddleClk)
 --begin
 --	if (rising_edge(paddleClk)) then
---		if (ball_y + (paddle_height / 2) < VAV + VSP + VBP + VFP) and (ball_y - (paddle_height / 2) > VSP + VBP + VFP) then
---			paddle_y_2 <= ball_y;
+--		if (paddle_y_2 + (paddle_height / 2) < VAV + VSP + VBP + VFP and btn_2 = "01") then
+--			paddle_y_2 <= paddle_y_2  + 1;
+--		elsif (paddle_y_2 - (paddle_height / 2) > VSP + VBP + VFP and btn_2 = "10") then
+--			paddle_y_2  <= paddle_y_2  - 1;
 --		end if;
 --	end if;
 --end process;
+
+ai_paddle: process(paddleClk)
+begin
+	if (rising_edge(paddleClk)) then
+		if (ball_y + (paddle_height / 2) < VAV + VSP + VBP + VFP) and (ball_y - (paddle_height / 2) > VSP + VBP + VFP) then
+			paddle_y_2 <= ball_y;
+		end if;
+	end if;
+end process;
 
 ballClkScaler : process(clk)
 begin
@@ -177,7 +188,15 @@ begin
 	if (rst = '0') then
 		ball_x <= HSP + HFP + HBP + HAV / 2;
 		ball_y <= VSP + VFP + VBP + VAV / 2;
+		score_counter <= 0;
 	elsif (rising_edge(ballClk)) then
+	
+		if (ball_x < paddle_x - paddle_width) then
+			ball_x <= HSP + HFP + HBP + HAV / 2;
+			ball_y <= VSP + VFP + VBP + VAV / 2;
+			score_counter <= score_counter + 1;
+		end if;
+	
 		case ball_dir_h is
 			when left =>
 				ball_x <= ball_x - 1;
@@ -193,6 +212,8 @@ begin
 		end case;
 	end if;
 end process;
+
+
 
 ball_collision: process(ballClk)
 begin

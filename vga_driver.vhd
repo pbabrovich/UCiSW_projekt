@@ -3,6 +3,10 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
  
 entity vga_driver is
+generic (
+		BOARD_CLK_FREQ : natural := 50000000 -- CLK frequency in Hz
+		
+	);
 port(
 		clk: in std_logic;
 		hsync, vsync: out std_logic;
@@ -10,6 +14,10 @@ port(
 		btn: in std_logic_vector(1 downto 0);
 		btn_2: in std_logic_vector(1 downto 0);
 		rst: in std_logic;
+		--------------
+		SEG : out std_logic_vector(7 downto 0);
+		DIG : out std_logic_vector(5 downto 0);
+		--------------
 		led1p: out std_logic_vector(1 downto 0);
 		led2p: out std_logic_vector(1 downto 0);
 		beep : out STD_LOGIC--------------------------------------------
@@ -74,7 +82,37 @@ end vga_driver;
 	signal score_update: boolean := false;
 	-------------
 	signal end_game: boolean := false;
+	-----------@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@-----------------------
+	
+	signal SEG_data_sig : std_logic_vector(7 downto 0);
+	signal DIG_sel_sig : std_logic_vector(5 downto 0);
+
+	
 	------------
+	type digit_test_arr is array (0 to 31) of std_logic_vector(4 downto 0);
+	type digit_test_type is array (0 to 5) of std_logic_vector(4 downto 0);
+	constant digit_test_const: digit_test_arr := 
+		("00000", "00001", "00010", "00011", "00100", "00101", "00110", "00111",   -- 0-7 
+		 "01000", "01001", "01010", "01011", "01100", "01101", "01110", "01111",   -- 8-F
+		 "10000", "10001", "10010", "10011", "10100", "10101", "10110", "10111",   -- (symbols with shift=1: separate bars)
+		 "11000", "11001", "11010", "11011", "11100", "11101", "11110", "11111");  -- (symbols with shift=1: H L U...)
+---------------------
+	-- internal signals
+	signal dot_sig : std_logic_vector(5 downto 0) := "010100";
+	signal digit0_sig : std_logic_vector(4 downto 0) := (others => '0');
+	signal digit1_sig : std_logic_vector(4 downto 0) := (others => '0');
+	signal digit2_sig : std_logic_vector(4 downto 0) := (others => '0');
+	signal digit3_sig : std_logic_vector(4 downto 0) := (others => '0');
+	signal digit4_sig : std_logic_vector(4 downto 0) := (others => '0');
+	signal digit5_sig : std_logic_vector(4 downto 0) := (others => '0');
+
+	-- customization constants (generics for components)
+	constant interval_1sec : natural := BOARD_CLK_FREQ; -- 1 sec :: 50 MHz (T=20 ns)
+	constant interval_100ms : natural := BOARD_CLK_FREQ/10; -- 100 ms
+	constant interval_2ms : natural := BOARD_CLK_FREQ/500; -- 2 ms
+	constant interval_5ms : natural := BOARD_CLK_FREQ/200; -- 5 ms
+	constant interval_1ms : natural := BOARD_CLK_FREQ/1000; -- 1 ms
+	-----------@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@-----------------------
 
 begin
 
@@ -286,6 +324,41 @@ begin
 		end if;
 	end if;
 end process;
+
+
+	hexled_drv: entity work.hexled_driver(hexled_driver_arch)
+		generic map (
+			CNT_LIMIT => interval_1ms
+		)
+		port map (
+			CLK => CLK,
+			RST => not RST,
+			DT0 => dot_sig(0),
+			DT1 => dot_sig(1),
+			DT2 => dot_sig(2),
+			DT3 => dot_sig(3),
+			DT4 => dot_sig(4),
+			DT5 => dot_sig(5),
+			DDI0 => digit0_sig,
+			DDI1 => digit1_sig,
+			DDI2 => digit2_sig,
+			DDI3 => digit3_sig,
+			DDI4 => digit4_sig,
+			DDI5 => digit5_sig,
+			SEG_DAT => SEG_data_sig,
+			DIG_SEL => DIG_sel_sig
+		);
+
+	SEG <= not SEG_data_sig;
+	DIG <= not DIG_sel_sig;
+	digit0_sig <= digit_test_const(score_counter_p2);
+	digit1_sig <= "00000";
+	digit2_sig <= "10011";
+	digit3_sig <= "10011";
+	digit4_sig <= digit_test_const(score_counter_p1);
+	digit5_sig <= "00000";
+
+
 
 	
 	

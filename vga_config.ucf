@@ -1,0 +1,26 @@
+#Clock
+NET clk			LOC = T8		|	IOSTANDARD = "LVCMOS33";
+
+#Keys 
+NET btn_2<1>	LOC = E3		|	IOSTANDARD = "LVCMOS33";			## KEY4
+NET btn_2<0>	LOC = E4		|	IOSTANDARD = "LVCMOS33";			## KEY3
+NET btn<1>		LOC = D3 	| 	IOSTANDARD = "LVCMOS33";       	## KEY2
+NET btn<0>		LOC = C3 	| 	IOSTANDARD = "LVCMOS33";       	## KEY1
+NET rst			LOC = L3 	| 	IOSTANDARD = "LVCMOS33"; 			## RESET
+
+#VGA
+NET rgb<2>		LOC = M13 	| 	IOSTANDARD = "LVCMOS33";        	## VGA R4
+NET rgb<1>		LOC = P11 	| 	IOSTANDARD = "LVCMOS33";        	## VGA G4
+NET rgb<0>		LOC = L7 	| 	IOSTANDARD = "LVCMOS33";        	## VGA B4
+
+NET vsync		LOC = L13 	| 	IOSTANDARD = "LVCMOS33";        	## VGA VS
+NET hsync		LOC = M14 	| 	IOSTANDARD = "LVCMOS33";        	## VGA HS  
+
+#Diode
+NET led1p<0>                LOC = P4 | IOSTANDARD = "LVCMOS33";       ## LED1
+NET led1p<1>                LOC = N5 | IOSTANDARD = "LVCMOS33";       ## LED2
+NET led2p<0>                LOC = P5 | IOSTANDARD = "LVCMOS33";       ## LED3
+NET led2p<1>                LOC = M6 | IOSTANDARD = "LVCMOS33";       ## LED4
+
+#Buzzer
+NET beep  LOC = J11 | IOSTANDARD = "LVCMOS33";  ##  Buzzer output

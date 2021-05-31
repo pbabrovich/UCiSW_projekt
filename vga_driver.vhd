@@ -1,6 +1,8 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
+library myLib;
+use     work.Utilities.all;
  
 entity vga_driver is
 generic (
@@ -35,6 +37,7 @@ end vga_driver;
 		led2p : out  STD_LOGIC_VECTOR (1 downto 0)
 	);
 	end component led_controller;
+	
 
 	constant HAV : integer := 800;
 	constant HSP : integer := 56;
@@ -68,8 +71,8 @@ end vga_driver;
 	constant ball_size: integer := 16;
 	signal ball_x: integer := HSP + HFP + HBP + HAV / 2;
 	signal ball_y: integer := VSP + VFP + VBP + VAV / 2;
-	type ball_direction_h_type is (left, right);
-	type ball_direction_v_type is (up, down);
+	--type ball_direction_h_type is (left, right);
+	--type ball_direction_v_type is (up, down);
 	
 	signal ball_dir_h: ball_direction_h_type := left;
 	signal ball_dir_v: ball_direction_v_type := up;
@@ -117,6 +120,9 @@ end vga_driver;
 begin
 
 left_player_score: led_controller port map (score_counter_p1, score_counter_p2, ballClk, rst, led1p, led2p);
+
+
+
 
 process(clk)
 begin
@@ -255,45 +261,44 @@ begin
 end process ballClkScaler;
 
 
-
-move_ball: process(ballClk, end_game, rst)
-begin
-  if (rising_edge(ballClk) and (end_game = false)) then
-    if ((rst = '0') or (ball_x < paddle_x - paddle_width) or (ball_x > paddle_x_2 + paddle_width))  then
-      ball_x <= HSP + HFP + HBP + HAV / 2;
-      ball_y <= VSP + VFP + VBP + VAV / 2;
-		--score_counter <= 0;	
-		if (ball_x < paddle_x - paddle_width) then
-		score_counter_p1 <= score_counter_p1 + 1;
-		end if;
-		if (ball_x > paddle_x_2 + paddle_width) then
-		score_counter_p2 <= score_counter_p2 + 1;
-		end if;
-		if (((ball_x < paddle_x - paddle_width) and ((score_counter_p1 = 4) or (score_counter_p2 = 4))) or (rst = '0')) then
-		score_counter_p1 <= 0;
-		score_counter_p2 <= 0;
-		end if;	
-    else
-      case ball_dir_h is
-        when left =>
-          ball_x <= ball_x - 1;
-        when right =>
-          ball_x <= ball_x + 1;
-      end case;
-      
-      case ball_dir_v is
-        when up =>
-          ball_y <= ball_y - 1;
-        when down =>
-          ball_y <= ball_y + 1;
-      end case;
-    end if;
-  end if;
-end process;
-
+--move_ball: process(ballClk, end_game, rst, ball_x, ball_y)
+--begin
+--  if (rising_edge(ballClk) and (end_game = false)) then
+--    if ((rst = '0') or (ball_x < paddle_x - paddle_width) or (ball_x > paddle_x_2 + paddle_width))  then
+--      ball_x <= HSP + HFP + HBP + HAV / 2;
+--      ball_y <= VSP + VFP + VBP + VAV / 2;
+--		--score_counter <= 0;	
+--		if (ball_x < paddle_x - paddle_width) then
+--		score_counter_p1 <= score_counter_p1 + 1;
+--		end if;
+--		if (ball_x > paddle_x_2 + paddle_width) then
+--		score_counter_p2 <= score_counter_p2 + 1;
+--		end if;
+--		if (((ball_x < paddle_x - paddle_width) and ((score_counter_p1 = 4) or (score_counter_p2 = 4))) or (rst = '0')) then
+--		score_counter_p1 <= 0;
+--		score_counter_p2 <= 0;
+--		end if;	
+--    else
+--      case ball_dir_h is
+--        when left =>
+--          ball_x <= ball_x - 1;
+--        when right =>
+--          ball_x <= ball_x + 1;
+--      end case;
+--      
+--      case ball_dir_v is
+--        when up =>
+--          ball_y <= ball_y - 1;
+--        when down =>
+--          ball_y <= ball_y + 1;
+--      end case;
+--    end if;
+--  end if;
+--end process;
 
 
-ball_collision: process(ballClk, rst)
+
+ball_collision: process(ballClk, rst, ball_x, ball_y)
 begin
 	if (rst = '0') then
 		ball_dir_h <= left;
@@ -348,6 +353,22 @@ end process;
 			SEG_DAT => SEG_data_sig,
 			DIG_SEL => DIG_sel_sig
 		);
+		
+	
+	move_ball_t: entity work.move_ball_test(move_ball_arch)
+	port map ( score_counter_p1 => score_counter_p1,
+			  score_counter_p2 => score_counter_p2,
+			  rst => rst,
+           ballclk => ballclk,
+			  ball_x => ball_x,
+			  ball_y => ball_y,
+			  paddle_x => paddle_x,
+			  paddle_x_2 => paddle_x_2,
+			  ball_dir_h  => ball_dir_h,
+			  ball_dir_v  => ball_dir_v,
+			  end_game => end_game
+			  );
+		
 
 	SEG <= not SEG_data_sig;
 	DIG <= not DIG_sel_sig;

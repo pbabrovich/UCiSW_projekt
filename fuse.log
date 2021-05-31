@@ -1,0 +1,24 @@
+Running: fuse.exe -relaunch -intstyle "ise" -incremental -lib "secureip" -o "C:/Users/enkor/Downloads/UCiSW_projekt-led/testbench_isim_beh.exe" -prj "C:/Users/enkor/Downloads/UCiSW_projekt-led/testbench_beh.prj" "work.testbench" 
+ISim P.20131013 (signature 0x7708f090)
+Number of CPUs detected in this system: 16
+Turning on mult-threading, number of parallel sub-compilation jobs: 32 
+Determining compilation order of HDL files
+Parsing VHDL file "C:/Users/enkor/Downloads/UCiSW_projekt-led/led_controller.vhd" into library work
+Parsing VHDL file "C:/Users/enkor/Downloads/UCiSW_projekt-led/hexled_driver.vhd" into library work
+Parsing VHDL file "C:/Users/enkor/Downloads/UCiSW_projekt-led/vga_driver.vhd" into library work
+WARNING:HDLCompiler:946 - "C:/Users/enkor/Downloads/UCiSW_projekt-led/vga_driver.vhd" Line 334: Actual for formal port rst is neither a static name nor a globally static expression
+Parsing VHDL file "C:/Users/enkor/Downloads/UCiSW_projekt-led/testbench.vhd" into library work
+Starting static elaboration
+Completed static elaboration
+Compiling package standard
+Compiling package std_logic_1164
+Compiling package numeric_std
+Compiling architecture behavioral of entity led_controller [led_controller_default]
+Compiling architecture hexled_driver_arch of entity hexled_driver [\hexled_driver(50000)\]
+Compiling architecture main of entity vga_driver [\vga_driver(50000000)\]
+Compiling architecture behavior of entity testbench
+Time Resolution for simulation is 1ps.
+Compiled 10 VHDL Units
+Built simulation executable C:/Users/enkor/Downloads/UCiSW_projekt-led/testbench_isim_beh.exe
+Fuse Memory Usage: 37680 KB
+Fuse CPU Usage: 999 ms

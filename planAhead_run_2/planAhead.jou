@@ -1,0 +1,10 @@
+#-----------------------------------------------------------
+# PlanAhead v14.7 (64-bit)
+# Build 321239 by xbuild on Fri Sep 27 19:29:51 MDT 2013
+# Start of session at: Sun May 30 16:46:00 2021
+# Process ID: 19592
+# Log file: C:/Users/enkor/Downloads/UCiSW_projekt-led/planAhead_run_2/planAhead.log
+# Journal file: C:/Users/enkor/Downloads/UCiSW_projekt-led/planAhead_run_2/planAhead.jou
+#-----------------------------------------------------------
+start_gui
+source C:/Users/enkor/Downloads/UCiSW_projekt-led/pa.fromNetlist.tcl

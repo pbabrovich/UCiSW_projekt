@@ -1,5 +1,4 @@
--- project: lab3 - hexled demo
--- file: hexled_driver.vhd
+
 -- description: 
 --    6-digit 7-degment led display ("hexled") driver module (suitable for
 --    part on AX309 evaluation board); contains a decoder for current digit
